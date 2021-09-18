@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"log"
 	"net"
-	"os"
 	"strings"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type MockConn struct {
@@ -52,7 +52,7 @@ func TestRequest_Connect(t *testing.T) {
 	s := &Server{config: &Config{
 		Rules:    PermitAll(),
 		Resolver: DNSResolver{},
-		Logger:   log.New(os.Stdout, "", log.LstdFlags),
+		Logger:   log.New(),
 	}}
 
 	// Create the connect request
@@ -127,7 +127,7 @@ func TestRequest_Connect_RuleFail(t *testing.T) {
 	s := &Server{config: &Config{
 		Rules:    PermitNone(),
 		Resolver: DNSResolver{},
-		Logger:   log.New(os.Stdout, "", log.LstdFlags),
+		Logger:   log.New(),
 	}}
 
 	// Create the connect request

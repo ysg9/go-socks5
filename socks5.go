@@ -4,9 +4,9 @@ import (
 	"context"
 	"bufio"
 	"fmt"
-	"log"
 	"net"
-	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -79,7 +79,8 @@ func New(conf *Config) (*Server, error) {
 
 	// Ensure we have a log target
 	if conf.Logger == nil {
-		conf.Logger = log.New(os.Stdout, "", log.LstdFlags)
+		conf.Logger = log.New()
+		conf.Logger.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 	}
 
 	server := &Server{
@@ -113,7 +114,7 @@ func (s *Server) Serve(l net.Listener) error {
 		}
 		go s.ServeConn(conn)
 	}
-	return nil
+	//return nil
 }
 
 // ServeConn is used to serve a single connection.
@@ -124,14 +125,14 @@ func (s *Server) ServeConn(conn net.Conn) error {
 	// Read the version byte
 	version := []byte{0}
 	if _, err := bufConn.Read(version); err != nil {
-		s.config.Logger.Printf("[ERR] socks: Failed to get version byte: %v", err)
+		s.config.Logger.Errorf("socks: failed to get version byte: %v", err)
 		return err
 	}
 
 	// Ensure we are compatible
 	if version[0] != socks5Version {
 		err := fmt.Errorf("unsupported SOCKS version: %v", version)
-		s.config.Logger.Printf("[ERR] socks: %v", err)
+		s.config.Logger.Errorf("socks: %v", err)
 		return err
 	}
 
@@ -139,13 +140,13 @@ func (s *Server) ServeConn(conn net.Conn) error {
 	authContext, err := s.authenticate(conn, bufConn)
 	if err != nil {
 		err = fmt.Errorf("failed to authenticate: %v", err)
-		s.config.Logger.Printf("[ERR] socks: %v", err)
+		s.config.Logger.Errorf("socks: %v", err)
 		return err
 	}
 
 	request, err := NewRequest(bufConn)
 	if err != nil {
-		if err == unrecognizedAddrType {
+		if err == errUnrecognizedAddrType {
 			if err := sendReply(conn, addrTypeNotSupported, nil); err != nil {
 				return fmt.Errorf("failed to send reply: %v", err)
 			}
@@ -160,7 +161,7 @@ func (s *Server) ServeConn(conn net.Conn) error {
 	// Process the client request
 	if err := s.handleRequest(request, conn); err != nil {
 		err = fmt.Errorf("failed to handle request: %v", err)
-		s.config.Logger.Printf("[ERR] socks: %v", err)
+		s.config.Logger.Errorf("socks: %v", err)
 		return err
 	}
 

@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"log"
 	"net"
-	"os"
 	"testing"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func TestSOCKS5_Connect(t *testing.T) {
@@ -43,7 +43,7 @@ func TestSOCKS5_Connect(t *testing.T) {
 	cator := UserPassAuthenticator{Credentials: creds}
 	conf := &Config{
 		AuthMethods: []Authenticator{cator},
-		Logger:      log.New(os.Stdout, "", log.LstdFlags),
+		Logger:      log.New(),
 	}
 	serv, err := New(conf)
 	if err != nil {
