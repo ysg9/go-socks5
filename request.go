@@ -31,7 +31,7 @@ const (
 )
 
 var (
-	errUnrecognizedAddrType = fmt.Errorf("Unrecognized address type")
+	errUnrecognizedAddrType = fmt.Errorf("unrecognized address type")
 )
 
 // AddressRewriter is used to rewrite a destination transparently
