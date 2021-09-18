@@ -1,13 +1,12 @@
 package socks5
 
 import (
+	"context"
 	"bufio"
 	"fmt"
 	"log"
 	"net"
 	"os"
-
-	"golang.org/x/net/context"
 )
 
 const (
